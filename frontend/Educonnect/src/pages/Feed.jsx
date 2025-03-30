@@ -1,56 +1,89 @@
 import React, { useEffect, useState } from "react";
-import { FaUserCircle, FaHeart, FaComment, FaShare, FaBookmark } from "react-icons/fa";
-import { formatDistanceToNow } from "date-fns";
-import api from "../api";
+import api, { socket } from "../api";
+import PostItem from "../components/PostItem";
 import MainContent from "./MainContent";
 
 const Feed = () => {
   const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const fetchPosts = async () => {
+    setLoading(true);
+    try {
+      const { data } = await api.get("/posts");
+      setPosts(data.posts || data);
+      setError("");
+    } catch (error) {
+      console.error("Error fetching posts:", error.response?.data || error.message);
+      setError(error.response?.data?.message || "Failed to load posts. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLike = (postId, updatedLikes, bookmarked) => {
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post._id === postId ? { ...post, likes: updatedLikes, bookmarked } : post
+      )
+    );
+  };
+
+  const handleBookmark = (postId, bookmarked) => {
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post._id === postId ? { ...post, bookmarked } : post
+      )
+    );
+  };
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const { data } = await api.get("/posts");
-        setPosts(data);
-      } catch (error) {
-        console.error("Error fetching posts:", error.response?.data || error.message);
-      }
-    };
     fetchPosts();
+    socket.on("newPost", (post) => {
+      setPosts((prevPosts) => [post, ...prevPosts]);
+    });
+    return () => {
+      socket.off("newPost");
+    };
   }, []);
 
+  if (loading) return (
+    <div className="flex justify-center items-center h-64 max-w-5xl mx-auto">
+      <span className="loading loading-spinner loading-lg text-blue-400"></span>
+    </div>
+  );
+
+  if (error) return (
+    <div className="text-red-400 text-center py-8 bg-gray-800 rounded-lg shadow-md max-w-5xl mx-auto">
+      <p>{error}</p>
+      <button
+        onClick={fetchPosts}
+        className="mt-4 btn btn-ghost text-blue-400 hover:text-blue-300"
+      >
+        Retry
+      </button>
+    </div>
+  );
+
   return (
-    <div className="max-w-4xl mx-auto p-4">
+    <div className="max-w-5xl mx-auto p-6 space-y-6 bg-gray-900 text-gray-200">
       <MainContent setPosts={setPosts} />
-      <h2 className="text-2xl font-bold my-4">Recent Posts</h2>
-
-      {posts.map((post) => (
-        <div key={post._id} className="mb-6 p-4 border rounded-lg">
-          <div className="flex items-center gap-2">
-            <FaUserCircle size={32} />
-            <span className="text-sm text-gray-500">
-              {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
-            </span>
-          </div>
-
-          {post.text && <p className="my-2">{post.text}</p>}
-
-          {post.file && (
-            <img
-              src={`http://localhost:5000/${post.file}`}
-              alt="Uploaded"
-              className="max-w-full my-2 rounded-lg shadow-md"
-            />
-          )}
-
-          <div className="flex gap-4 mt-3">
-            <button className="flex items-center gap-1"><FaHeart className="cursor-pointer" /><span>{post.likes?.length || 0}</span></button>
-            <button className="flex items-center gap-1"><FaComment className="cursor-pointer" /><span>{post.comments?.length || 0}</span></button>
-            <button className="flex items-center gap-1"><FaShare className="cursor-pointer" /></button>
-            <button className="flex items-center gap-1"><FaBookmark className="cursor-pointer" /></button>
-          </div>
-        </div>
-      ))}
+      <h2 className="text-2xl font-bold text-gray-100 mb-4">Recent Posts</h2>
+      {posts.length > 0 ? (
+        posts.map((post) => (
+          <PostItem
+            key={post._id}
+            post={post}
+            onLike={handleLike}
+            onBookmark={handleBookmark}
+          />
+        ))
+      ) : (
+        <p className="text-gray-400 text-center py-8 bg-gray-800 rounded-lg shadow-md">
+          No posts available.
+        </p>
+      )}
     </div>
   );
 };

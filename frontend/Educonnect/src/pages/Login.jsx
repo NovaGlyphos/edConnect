@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
 
-const Login = ({ onLogin }) => {
+const Login = ({ setIsAuthenticated }) => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -10,59 +10,67 @@ const Login = ({ onLogin }) => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
+    console.log("Login attempt from frontend:", { email, password: password.length > 0 ? "[hidden]" : "empty" }); // Debug
     try {
       const { data } = await api.post("/auth/login", { email, password });
+      console.log("Login response:", { id: data._id, email: data.email, token: data.token.slice(0, 10) + "..." }); // Debug
       localStorage.setItem("token", data.token);
-      
-      onLogin(); // ✅ Update authentication state
-      navigate("/"); // ✅ Redirect after login
+      setIsAuthenticated(true);
+      navigate("/");
     } catch (error) {
-      setError(error.response?.data?.message || "Login failed");
+      console.error("Login error:", error.response?.data || error.message); // Debug
+      setError(error.response?.data?.message || "Login failed. Please try again.");
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-black-200">
-      <div className="bg-gray-900 p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold text-center mb-4 text-blue-500">Login</h2>
-
-        {error && <p className="text-red-500 text-center">{error}</p>}
-
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label className="block text-gray-300">Email</label>
-            <input
-              type="email"
-              className="input input-bordered w-full bg-gray-800 text-white"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-300">Password</label>
-            <input
-              type="password"
-              className="input input-bordered w-full bg-gray-800 text-white"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-
-          <button type="submit" className="btn w-full bg-blue-600 hover:bg-blue-700 text-white">
-            Login
-          </button>
-        </form>
-
-        <p className="text-center mt-4 text-gray-400">
-          Don't have an account?{" "}
-          <span className="text-blue-500 cursor-pointer" onClick={() => navigate("/signup")}>
-            Sign Up
-          </span>
-        </p>
-      </div>
+    <div className="card bg-gray-800 shadow-lg p-8 w-full max-w-md rounded-lg border border-gray-700">
+      <h2 className="text-2xl font-bold text-gray-100 text-center mb-6">Login</h2>
+      {error && <p className="text-red-400 text-center mb-4">{error}</p>}
+      <form onSubmit={handleLogin} className="space-y-6">
+        <div className="form-control">
+          <label className="label">
+            <span className="label-text text-gray-300 font-medium">Email</span>
+          </label>
+          <input
+            type="email"
+            className="input input-bordered w-full bg-gray-700 text-gray-200 border-gray-600 focus:ring-2 focus:ring-blue-500 transition placeholder-gray-400"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoComplete="email"
+          />
+        </div>
+        <div className="form-control">
+          <label className="label">
+            <span className="label-text text-gray-300 font-medium">Password</span>
+          </label>
+          <input
+            type="password"
+            className="input input-bordered w-full bg-gray-700 text-gray-200 border-gray-600 focus:ring-2 focus:ring-blue-500 transition placeholder-gray-400"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            autoComplete="current-password"
+          />
+        </div>
+        <button
+          type="submit"
+          className="btn btn-primary w-full bg-blue-700 hover:bg-blue-800 text-white shadow-md"
+        >
+          Login
+        </button>
+      </form>
+      <p className="text-center mt-4 text-gray-400">
+        Don't have an account?{" "}
+        <span
+          className="text-blue-400 cursor-pointer hover:text-blue-300 font-medium"
+          onClick={() => navigate("/signup")}
+        >
+          Sign Up
+        </span>
+      </p>
     </div>
   );
 };

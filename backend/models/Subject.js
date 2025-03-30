@@ -1,9 +1,11 @@
 const mongoose = require("mongoose");
 
-const subjectSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  subjects: [{ type: String }],
-  // Optionally you can store an icon URL or class if needed
-}, { timestamps: true });
+const SubjectSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    subjects: [{ type: String }],
+  },
+  { timestamps: true }
+);
 
-module.exports = mongoose.model("Subject", subjectSchema);
+module.exports = mongoose.model("Subject", SubjectSchema);

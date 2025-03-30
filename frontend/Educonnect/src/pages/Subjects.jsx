@@ -14,7 +14,6 @@ const Subjects = () => {
         setSubjectCategories(data);
       } catch (error) {
         console.error("Error fetching subjects:", error.response?.data || error.message);
-        // Fallback to static data if needed
         setSubjectCategories([
           {
             id: 1,
@@ -55,19 +54,24 @@ const Subjects = () => {
 
   const handleSubjectClick = (subject) => {
     console.log("Selected subject:", subject);
-    // Navigate to subject details page if implemented
+  };
+
+  const categoryIcons = {
+    Mathematics: <FaCalculator className="text-blue-400" />,
+    Science: <FaFlask className="text-green-400" />,
+    Humanities: <FaGlobe className="text-purple-400" />,
+    Technology: <FaCode className="text-teal-400" />,
+    Arts: <FaPalette className="text-pink-400" />,
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Explore Subjects</h1>
-      <div className="relative mb-8">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <FaSearch className="text-gray-400" />
-        </div>
+    <div className="max-w-5xl mx-auto p-6 space-y-6 bg-gray-900 text-gray-200">
+      <h1 className="text-3xl font-bold text-gray-100 mb-6">Explore Subjects</h1>
+      <div className="relative mb-8 bg-gray-800 p-4 rounded-lg shadow-md border border-gray-700">
+        <FaSearch className="absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400" />
         <input
           type="text"
-          className="input input-bordered w-full pl-10"
+          className="input input-bordered w-full pl-12 bg-gray-700 text-gray-200 border-gray-600 focus:ring-2 focus:ring-blue-500 transition placeholder-gray-400"
           placeholder="Search for subjects..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -75,38 +79,39 @@ const Subjects = () => {
       </div>
       <div className="space-y-8">
         {filteredCategories.map((category) => (
-          <div key={category.id} className="bg-base-200 rounded-lg p-5 shadow-md">
+          <div
+            key={category.id}
+            className="bg-gray-800 rounded-lg p-6 shadow-md border border-gray-700"
+          >
             <div className="flex items-center gap-3 mb-4">
-              {/* If you have an icon, include it here. Otherwise, remove this line */}
-              <h2 className="text-xl font-semibold">{category.name}</h2>
+              {categoryIcons[category.name] || <FaBook className="text-gray-400" />}
+              <h2 className="text-xl font-semibold text-gray-100">{category.name}</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {category.subjects.map((subject, idx) => (
                 <div
                   key={idx}
-                  className="bg-white p-4 rounded-md shadow hover:shadow-lg transition-shadow cursor-pointer flex items-center gap-2"
+                  className="bg-gray-700 p-4 rounded-md shadow-sm hover:shadow-md transition-shadow cursor-pointer flex items-center gap-2 border border-gray-600"
                   onClick={() => handleSubjectClick(subject)}
                 >
-                  <FaBook className="text-gray-500" />
-                  <span className="text-gray-900 font-medium">{subject}</span>
+                  <FaBook className="text-gray-400" />
+                  <span className="text-gray-200 font-medium">{subject}</span>
                 </div>
               ))}
             </div>
           </div>
         ))}
         {filteredCategories.length === 0 && (
-          <div className="text-center py-8">
-            <p className="text-gray-500">No subjects found matching "{searchQuery}"</p>
+          <div className="text-center py-8 bg-gray-800 rounded-lg shadow-md border border-gray-700">
+            <p className="text-gray-400 text-lg">No subjects found matching "{searchQuery}"</p>
           </div>
         )}
       </div>
-      <div className="mt-10 border-t pt-6">
-        <h3 className="text-lg font-semibold mb-4">Popular Learning Resources</h3>
-        <div className="p-4 bg-base-200 rounded-lg">
-          <p className="text-gray-500 italic">
-            Connect with top educators for these subjects and discover learning materials.
-          </p>
-        </div>
+      <div className="mt-10 border-t border-gray-700 pt-6 bg-gray-800 rounded-lg shadow-md p-6">
+        <h3 className="text-lg font-semibold text-gray-100 mb-4">Popular Learning Resources</h3>
+        <p className="text-gray-400 italic">
+          Connect with top educators for these subjects and discover learning materials.
+        </p>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
+// src/components/EducatorCard.jsx
 import { useState } from "react";
-import api from "../api"; // Ensure API is correctly imported
+import api from "../api";
 
 const EducatorCard = ({ educator }) => {
   const [following, setFollowing] = useState(false);
@@ -14,14 +15,16 @@ const EducatorCard = ({ educator }) => {
   };
 
   return (
-    <div className="p-4 bg-gray-800 rounded-lg shadow flex justify-between items-center">
+    <div className="p-6 bg-gray-800 rounded-lg shadow-md flex justify-between items-center border border-gray-700 hover:shadow-lg transition-shadow">
       <div>
-        <h3 className="text-xl font-semibold">{educator.name}</h3>
+        <h3 className="text-xl font-semibold text-gray-100">{educator.name}</h3>
         <p className="text-gray-400">{educator.subject}</p>
       </div>
       <button
         onClick={toggleFollow}
-        className={`px-4 py-2 text-white rounded ${following ? "bg-red-500" : "bg-blue-500"}`}
+        className={`px-4 py-2 text-white rounded-lg shadow-md transition-colors ${
+          following ? "bg-red-700 hover:bg-red-800" : "bg-blue-700 hover:bg-blue-800"
+        }`}
       >
         {following ? "Unfollow" : "Follow"}
       </button>

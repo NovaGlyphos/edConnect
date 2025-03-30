@@ -1,54 +1,76 @@
-import React, { useState, useEffect } from "react";
-import { FaBookmark } from "react-icons/fa";
+// src/components/PostItem.jsx
+import React from "react";
+import { FaUserCircle, FaHeart, FaComment, FaBookmark } from "react-icons/fa";
+import { formatDistanceToNow } from "date-fns";
+import { Link } from "react-router-dom";
 import api from "../api";
 
-const PostItem = ({ post }) => {
-  const [bookmarked, setBookmarked] = useState(false);
-  const [bookmarkId, setBookmarkId] = useState(null);
+const PostItem = ({ post, onLike, onBookmark }) => {
+  const handleLike = async () => {
+    try {
+      const { data } = await api.patch(`/posts/${post._id}/like`);
+      onLike(post._id, data.likes, data.bookmarked);
+    } catch (error) {
+      console.error("Error liking post:", error.response?.data || error.message);
+    }
+  };
 
-  // Check if the post is already bookmarked
-  useEffect(() => {
-    const checkBookmark = async () => {
-      try {
-        const { data } = await api.get("/bookmarks");
-        const existingBookmark = data.find((b) => b.post._id === post._id);
-        if (existingBookmark) {
-          setBookmarked(true);
-          setBookmarkId(existingBookmark._id);
-        }
-      } catch (error) {
-        console.error("Error checking bookmark:", error.response?.data || error.message);
-      }
-    };
-    checkBookmark();
-  }, [post._id]);
-
-  // Handle bookmark toggle
   const handleBookmark = async () => {
     try {
-      if (!bookmarked) {
-        const { data } = await api.post("/bookmarks", { postId: post._id });
-        setBookmarkId(data._id);
-        setBookmarked(true);
-      } else {
-        await api.delete(`/bookmarks/${bookmarkId}`);
-        setBookmarkId(null);
-        setBookmarked(false);
-      }
+      const { data } = await api.post(`/bookmarks/${post._id}`);
+      onBookmark(post._id, data.bookmarked);
     } catch (error) {
       console.error("Error bookmarking post:", error.response?.data || error.message);
     }
   };
 
   return (
-    <div className="border p-4 rounded-lg shadow-md">
-      <p>{post.text}</p>
-      <div className="flex justify-between mt-2">
-        <button 
-          onClick={handleBookmark} 
-          className={`text-gray-600 hover:text-yellow-500 ${bookmarked ? "text-yellow-500" : ""}`}
+    <div className="card bg-gray-800 shadow-md p-6 rounded-lg border border-gray-700 hover:shadow-lg transition-shadow">
+      <div className="flex items-center gap-3 mb-4">
+        <FaUserCircle size={40} className="text-gray-400" />
+        <div>
+          <p className="font-semibold text-gray-100 text-lg">
+            {post.author?.name || "Unknown User"}
+          </p>
+          <p className="text-sm text-gray-400">
+            {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
+          </p>
+        </div>
+      </div>
+      <Link to={`/posts/${post._id}`} className="block">
+        <p className="text-gray-200 leading-relaxed mb-4">{post.text}</p>
+        {post.image && (
+          <img
+            src={`http://localhost:5000${post.image}`}
+            alt="Post"
+            className="max-w-full rounded-lg shadow-sm"
+          />
+        )}
+      </Link>
+      <div className="flex gap-6 mt-4">
+        <button
+          onClick={handleLike}
+          className="flex items-center gap-2 text-gray-400 hover:text-blue-400 transition-colors"
         >
-          <FaBookmark />
+          <FaHeart
+            className={
+              post.author && post.likes.includes(post.author._id) ? "text-blue-400" : ""
+            }
+          />
+          {post.likes.length}
+        </button>
+        <Link
+          to={`/posts/${post._id}`}
+          className="flex items-center gap-2 text-gray-400 hover:text-blue-400 transition-colors"
+        >
+          <FaComment /> Comment
+        </Link>
+        <button
+          onClick={handleBookmark}
+          className="flex items-center gap-2 text-gray-400 hover:text-blue-400 transition-colors"
+        >
+          <FaBookmark className={post.bookmarked ? "text-blue-400" : ""} />
+          {post.bookmarked ? "Bookmarked" : "Bookmark"}
         </button>
       </div>
     </div>

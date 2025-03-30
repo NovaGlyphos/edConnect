@@ -1,50 +1,81 @@
+// src/pages/Bookmarks.jsx
 import React, { useEffect, useState } from "react";
-import { FaTrash, FaExternalLinkAlt } from "react-icons/fa";
 import api from "../api";
+import PostItem from "../components/PostItem";
 
 const Bookmarks = () => {
-  const [bookmarks, setBookmarks] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    const fetchBookmarks = async () => {
-      try {
-        const { data } = await api.get("/bookmarks");
-        setBookmarks(data);
-      } catch (error) {
-        console.error("Error fetching bookmarks:", error.response?.data || error.message);
-      }
-    };
-    fetchBookmarks();
-  }, []);
-
-  const handleRemoveBookmark = async (id) => {
+  const fetchBookmarkedPosts = async () => {
+    setLoading(true);
     try {
-      await api.delete(`/bookmarks/${id}`);
-      setBookmarks(bookmarks.filter((b) => b._id !== id));
+      const { data } = await api.get("/bookmarks");
+      setPosts(data);
+      setError("");
     } catch (error) {
-      console.error("Error removing bookmark:", error.response?.data || error.message);
+      setError(error.response?.data?.message || "Failed to load bookmarked posts. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
+  const handleLike = (postId, updatedLikes, bookmarked) => {
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post._id === postId ? { ...post, likes: updatedLikes, bookmarked } : post
+      )
+    );
+  };
+
+  const handleBookmark = (postId, bookmarked) => {
+    setPosts((prevPosts) => {
+      if (!bookmarked) {
+        return prevPosts.filter((post) => post._id !== postId);
+      }
+      return prevPosts.map((post) =>
+        post._id === postId ? { ...post, bookmarked } : post
+      );
+    });
+  };
+
+  useEffect(() => {
+    fetchBookmarkedPosts();
+  }, []);
+
+  if (loading) return (
+    <div className="flex justify-center items-center h-64">
+      <span className="loading loading-spinner loading-lg text-blue-400"></span>
+    </div>
+  );
+
+  if (error) return (
+    <div className="text-red-400 text-center py-8 bg-gray-800 rounded-lg shadow-md max-w-2xl mx-auto">
+      <p>{error}</p>
+      <button
+        onClick={fetchBookmarkedPosts}
+        className="mt-4 btn btn-ghost text-blue-400 hover:text-blue-300"
+      >
+        Retry
+      </button>
+    </div>
+  );
+
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Your Bookmarked Posts</h1>
-      {bookmarks.length > 0 ? (
-        bookmarks.map((bookmark) => (
-          <div key={bookmark._id} className="bg-base-200 rounded-lg p-4 shadow flex items-center justify-between mb-3">
-            <div>
-              <h3 className="font-semibold">{bookmark.post.text}</h3>
-              <a href={`/posts/${bookmark.post._id}`} className="text-blue-500 text-sm flex items-center">
-                View Post <FaExternalLinkAlt className="ml-1" />
-              </a>
-            </div>
-            <button onClick={() => handleRemoveBookmark(bookmark._id)} className="text-red-500 hover:text-red-700">
-              <FaTrash />
-            </button>
-          </div>
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold text-gray-100 mb-4">Bookmarked Posts</h1>
+      {posts.length > 0 ? (
+        posts.map((post) => (
+          <PostItem
+            key={post._id}
+            post={post}
+            onLike={handleLike}
+            onBookmark={handleBookmark}
+          />
         ))
       ) : (
-        <p className="text-gray-500">No bookmarks yet.</p>
+        <p className="text-gray-400 text-center">No bookmarked posts yet.</p>
       )}
     </div>
   );

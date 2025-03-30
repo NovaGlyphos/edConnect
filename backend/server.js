@@ -14,6 +14,7 @@ const educatorRoutes = require("./routes/educatorRoutes");
 const postRoutes = require("./routes/postRoutes");
 const subjectRoutes = require("./routes/subjectRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 const { apiLimiter } = require("./middlewares/rateLimiter");
 const errorHandler = require("./middlewares/errorMiddleware");
@@ -21,7 +22,7 @@ const errorHandler = require("./middlewares/errorMiddleware");
 const app = express();
 const server = http.createServer(app);
 
-// CORS setup
+// CORS setup for frontend communication
 app.use(
   cors({
     origin: ["http://localhost:5173"],
@@ -30,7 +31,7 @@ app.use(
   })
 );
 
-// Socket.IO setup
+// Socket.IO setup for real-time features (e.g., notifications)
 const io = new Server(server, {
   cors: {
     origin: ["http://localhost:5173"],
@@ -43,55 +44,68 @@ io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
 
   const token = socket.handshake.auth.token;
-  if (token) {
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      socket.join(decoded.id.toString());
-      console.log(`User ${decoded.id} joined room ${decoded.id.toString()}`);
-    } catch (error) {
-      console.error("Invalid token:", error.message);
+  console.log("Received token:", token); // Log the token for debugging
+
+  if (!token) {
+    console.log("No token provided, disconnecting socket:", socket.id);
+    socket.disconnect();
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("Decoded token:", decoded); // Log the decoded payload
+
+    if (!decoded._id) {
+      console.error("Token payload missing '_id':", decoded);
       socket.disconnect();
+      return;
     }
+
+    const userId = decoded._id.toString();
+    socket.join(userId);
+    console.log(`User ${userId} joined room ${userId}`);
+  } catch (error) {
+    console.error("Token verification failed:", error.message);
+    socket.disconnect();
   }
 
   socket.on("disconnect", () => console.log("User disconnected:", socket.id));
 });
 
+// Attach io to app for use in controllers
 app.set("io", io);
 
+// Middleware to pass io to request object
 app.use((req, res, next) => {
   req.io = io;
   next();
 });
 
-// Middleware
+// Standard middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use("/uploads", express.static("uploads"));
-app.use(apiLimiter);
+app.use("/uploads", express.static("uploads")); // Serve static files (e.g., profile pics)
+app.use(apiLimiter); // Rate limiting for API security
 
 // Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/bookmarks", bookmarkRoutes);
-app.use("/api/comments", commentRoutes);
-app.use("/api/discussions", discussionRoutes);
-app.use("/api/educators", educatorRoutes);
-app.use("/api/posts", postRoutes);
-app.use("/api/subjects", subjectRoutes);
-app.use("/api/notifications", notificationRoutes);
+app.use("/api/auth", authRoutes);           // Authentication (login, signup)
+app.use("/api/bookmarks", bookmarkRoutes);  // Bookmark-related endpoints
+app.use("/api/comments", commentRoutes);    // Comment-related endpoints
+app.use("/api/discussions", discussionRoutes); // Discussion-related endpoints
+app.use("/api/educators", educatorRoutes);  // Fetch educators list
+app.use("/api/posts", postRoutes);          // Post-related endpoints
+app.use("/api/subjects", subjectRoutes);    // Subject-related endpoints
+app.use("/api/notifications", notificationRoutes); // Notification endpoints
+app.use("/api/users", userRoutes);          // User profile and follow system
 
-// Error handling
+// Error handling middleware (should be last)
 app.use(errorHandler);
 
-// Start server
-// Replace your connectDB() call in server.js with this:
-// Start server
+// Connect to MongoDB and start server
 connectDB()
   .then(() => {
     console.log("MongoDB connected successfully");
-    
-    // No need to directly access mongoose here since we're using connectDB()
-    
     server.listen(5000, () => {
       console.log("Server running on port 5000");
     });

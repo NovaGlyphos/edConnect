@@ -1,4 +1,3 @@
-// src/App.jsx
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import AuthLayout from "./components/AuthLayout";
@@ -11,6 +10,7 @@ import PostDetails from "./pages/PostDetails";
 import Bookmarks from "./pages/Bookmarks";
 import Discussions from "./pages/Discussions";
 import Subjects from "./pages/Subjects";
+import Profile from "./pages/Profile"; // Import the new Profile page
 import api from "./api";
 
 function App() {
@@ -65,6 +65,7 @@ function App() {
           <Route path="bookmarks" element={<Bookmarks />} />
           <Route path="discussions" element={<Discussions />} />
           <Route path="subjects" element={<Subjects />} />
+          <Route path="profile/:id" element={<Profile />} /> {/* Added Profile route */}
         </Route>
       </Routes>
     </BrowserRouter>

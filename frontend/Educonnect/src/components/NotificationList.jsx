@@ -9,13 +9,15 @@ const NotificationList = () => {
 
   const fetchNotifications = async () => {
     try {
+      console.log("NotificationList.jsx - Fetching notifications...");
       const { data } = await api.get("/notifications");
+      console.log("NotificationList.jsx - Notifications fetched:", data);
       setNotifications(data);
       setLoading(false);
       setError("");
     } catch (error) {
-      console.error("Error fetching notifications:", error.response?.data || error.message);
-      setError("Failed to load notifications");
+      console.error("NotificationList.jsx - Error fetching notifications:", error.response?.data || error.message);
+      setError(error.response?.data?.message || "Failed to load notifications");
       setLoading(false);
     }
   };
@@ -27,7 +29,7 @@ const NotificationList = () => {
         prev.map((n) => (n._id === id ? { ...n, read: true } : n))
       );
     } catch (error) {
-      console.error("Error marking as read:", error.response?.data || error.message);
+      console.error("NotificationList.jsx - Error marking as read:", error.response?.data || error.message);
     }
   };
 
@@ -38,23 +40,23 @@ const NotificationList = () => {
         await api.delete("/notifications/clear");
         setNotifications([]);
       } catch (error) {
-        console.error("Error clearing notifications:", error.response?.data || error.message);
+        console.error("NotificationList.jsx - Error clearing notifications:", error.response?.data || error.message);
         setError("Failed to clear notifications");
       }
       setClearing(false);
-    }, 300); // Duration of the fade-out animation
+    }, 300);
   };
 
   useEffect(() => {
     fetchNotifications();
 
     socket.on("newNotification", (notification) => {
-      console.log("New notification received:", notification);
+      console.log("NotificationList.jsx - New notification received:", notification);
       setNotifications((prev) => [notification, ...prev]);
     });
 
     socket.on("connect_error", (err) => {
-      console.error("Socket error:", err.message);
+      console.error("NotificationList.jsx - Socket error:", err.message);
     });
 
     return () => {
@@ -67,9 +69,9 @@ const NotificationList = () => {
   if (error) return <div className="text-red-400">{error}</div>;
 
   const notificationStyle = {
-    transition: 'opacity 300ms, transform 300ms',
+    transition: "opacity 300ms, transform 300ms",
     opacity: clearing ? 0 : 1,
-    transform: clearing ? 'translateY(-20px)' : 'translateY(0)',
+    transform: clearing ? "translateY(-20px)" : "translateY(0)",
   };
 
   return (

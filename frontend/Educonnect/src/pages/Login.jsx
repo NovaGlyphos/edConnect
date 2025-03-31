@@ -11,15 +11,17 @@ const Login = ({ setIsAuthenticated }) => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-    console.log("Login attempt from frontend:", { email, password: password.length > 0 ? "[hidden]" : "empty" }); // Debug
+    console.log("Login attempt from frontend:", { email, password: password.length > 0 ? "[hidden]" : "empty" });
     try {
       const { data } = await api.post("/auth/login", { email, password });
-      console.log("Login response:", { id: data._id, email: data.email, token: data.token.slice(0, 10) + "..." }); // Debug
+      console.log("Login response:", { id: data._id, name: data.name, token: data.token.slice(0, 10) + "..." });
       localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify({ _id: data._id, name: data.name }));
+      console.log("Token stored in localStorage:", localStorage.getItem("token").slice(0, 10) + "..."); // Debug
       setIsAuthenticated(true);
-      navigate("/");
+      navigate("/"); // Redirect after setting state
     } catch (error) {
-      console.error("Login error:", error.response?.data || error.message); // Debug
+      console.error("Login error:", error.response?.data || error.message);
       setError(error.response?.data?.message || "Login failed. Please try again.");
     }
   };

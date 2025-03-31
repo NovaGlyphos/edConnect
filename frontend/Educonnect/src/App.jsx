@@ -10,25 +10,33 @@ import PostDetails from "./pages/PostDetails";
 import Bookmarks from "./pages/Bookmarks";
 import Discussions from "./pages/Discussions";
 import Subjects from "./pages/Subjects";
-import Profile from "./pages/Profile"; // Import the new Profile page
+import Profile from "./pages/Profile";
 import api from "./api";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true); // New state for auth check
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const token = localStorage.getItem("token");
+        console.log("App.jsx - Token on mount:", token ? token.slice(0, 10) + "..." : "No token");
         if (token) {
-          await api.get("/auth/profile");
+          const { data } = await api.get("/auth/profile");
+          console.log("App.jsx - Auth check response:", data);
           setIsAuthenticated(true);
         } else {
+          console.log("App.jsx - No token found, user not authenticated");
           setIsAuthenticated(false);
         }
       } catch (error) {
+        console.error("App.jsx - Auth check error:", error.response?.data || error.message);
         localStorage.removeItem("token");
+        localStorage.removeItem("user"); // Clear user data if present
         setIsAuthenticated(false);
+      } finally {
+        setIsCheckingAuth(false); // Auth check complete
       }
     };
     checkAuth();
@@ -36,8 +44,19 @@ function App() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user"); // Ensure all auth data is cleared
     setIsAuthenticated(false);
+    window.location.href = "/login"; // Force redirect to login
   };
+
+  // Show loading state while checking auth
+  if (isCheckingAuth) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-900">
+        <div className="text-gray-300 text-xl animate-pulse">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <BrowserRouter>
@@ -65,7 +84,7 @@ function App() {
           <Route path="bookmarks" element={<Bookmarks />} />
           <Route path="discussions" element={<Discussions />} />
           <Route path="subjects" element={<Subjects />} />
-          <Route path="profile/:id" element={<Profile />} /> {/* Added Profile route */}
+          <Route path="profile/:id" element={<Profile />} />
         </Route>
       </Routes>
     </BrowserRouter>

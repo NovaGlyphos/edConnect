@@ -11,11 +11,13 @@ const Feed = () => {
   const fetchPosts = async () => {
     setLoading(true);
     try {
+      console.log("Feed.jsx - Fetching posts...");
       const { data } = await api.get("/posts");
+      console.log("Feed.jsx - Posts fetched:", data);
       setPosts(data.posts || data);
       setError("");
     } catch (error) {
-      console.error("Error fetching posts:", error.response?.data || error.message);
+      console.error("Feed.jsx - Error fetching posts:", error.response?.data || error.message);
       setError(error.response?.data?.message || "Failed to load posts. Please try again.");
     } finally {
       setLoading(false);
@@ -41,6 +43,7 @@ const Feed = () => {
   useEffect(() => {
     fetchPosts();
     socket.on("newPost", (post) => {
+      console.log("Feed.jsx - New post received:", post);
       setPosts((prevPosts) => [post, ...prevPosts]);
     });
     return () => {

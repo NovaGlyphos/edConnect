@@ -67,7 +67,7 @@ const unfollowUser = async (req, res) => {
 const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.params.id)
-      .select("-password")
+      .select("-password") // Includes bio and educationalInstitution by default
       .populate("following", "name")
       .populate("followers", "name");
     if (!user) return res.status(404).json({ message: "User not found" });
@@ -82,5 +82,4 @@ const getUserProfile = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
 module.exports = { followUser, unfollowUser, getUserProfile };

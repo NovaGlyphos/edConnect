@@ -60,7 +60,6 @@ const Profile = () => {
   if (error) return <div className="text-red-400">{error}</div>;
   if (!profile) return <div>User not found</div>;
 
-  // Default user icon (generic silhouette)
   const defaultUserIcon = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y";
 
   return (
@@ -68,14 +67,17 @@ const Profile = () => {
       <div className="bg-gray-800 p-6 rounded-lg shadow-md mb-6">
         <div className="flex items-center space-x-6">
           <img
-            src={profile.profilePic || defaultUserIcon} // Use generic user icon as default
+            src={profile.profilePic || defaultUserIcon}
             alt={profile.name}
-            className="w-24 h-24 rounded-full object-cover" // Ensure proper fit
-            onError={(e) => (e.target.src = defaultUserIcon)} // Fallback to default if image fails
+            className="w-24 h-24 rounded-full object-cover"
+            onError={(e) => (e.target.src = defaultUserIcon)}
           />
           <div>
             <h1 className="text-2xl font-bold text-gray-100">{profile.name}</h1>
             <p className="text-gray-400">{profile.bio || "No bio available"}</p>
+            <p className="text-gray-500">
+              {profile.educationalInstitution || "No institution provided"}
+            </p>
             <div className="mt-2">
               <span className="text-gray-300">Followers: {profile.followers.length} </span>
               <span className="text-gray-300 ml-4">Following: {profile.following.length}</span>
@@ -107,10 +109,10 @@ const Profile = () => {
               <p className="text-gray-200">{post.text}</p>
               {post.image && (
                 <img
-                  src={`http://localhost:5000${post.image}`} // Full URL for post image
+                  src={`http://localhost:5000${post.image}`}
                   alt="Post"
                   className="mt-2 max-w-full rounded object-cover"
-                  onError={(e) => (e.target.style.display = "none")} // Hide if image fails to load
+                  onError={(e) => (e.target.style.display = "none")}
                 />
               )}
               <p className="text-gray-400 text-sm">Likes: {post.likes.length}</p>

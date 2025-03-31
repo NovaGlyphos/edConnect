@@ -22,7 +22,6 @@ const Educators = () => {
     fetchEducators();
   }, []);
 
-  // Default user icon (generic silhouette)
   const defaultUserIcon = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y";
 
   if (loading) {
@@ -48,7 +47,7 @@ const Educators = () => {
       <h2 className="text-3xl font-bold text-gray-100 mb-6 tracking-tight">
         Our Educators
       </h2>
-      <ul className="space-y-6 max-w-2xl mx-auto"> {/* Single column with vertical spacing */}
+      <ul className="space-y-6 max-w-2xl mx-auto">
         {educators.map((educator) => (
           <li
             key={educator._id}
@@ -71,6 +70,9 @@ const Educators = () => {
                   </h3>
                   <p className="text-sm text-gray-400 truncate">
                     {educator.bio || "No bio available"}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {educator.educationalInstitution || "No institution provided"}
                   </p>
                 </div>
               </div>

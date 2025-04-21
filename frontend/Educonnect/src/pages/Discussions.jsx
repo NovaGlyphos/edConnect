@@ -1,10 +1,11 @@
-// src/pages/Discussions.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { FaArrowUp, FaArrowDown } from "react-icons/fa";
 import { formatDistanceToNow } from "date-fns";
+import { LanguageContext } from "../context/LanguageContext";
 import api from "../api";
 
 const Discussions = () => {
+  const { t } = useContext(LanguageContext);
   const [discussions, setDiscussions] = useState([]);
   const [newDiscussion, setNewDiscussion] = useState({
     title: "",
@@ -48,7 +49,7 @@ const Discussions = () => {
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6 bg-gray-900 text-gray-200">
-      <h1 className="text-3xl font-bold text-gray-100 mb-6">Discussions</h1>
+      <h1 className="text-3xl font-bold text-gray-100 mb-6">Poll Discussions</h1>
       <form
         onSubmit={handleNewDiscussionSubmit}
         className="bg-gray-800 p-6 rounded-lg shadow-md border border-gray-700 space-y-4"
@@ -56,14 +57,14 @@ const Discussions = () => {
         <h2 className="text-xl font-semibold text-gray-100">Start a New Discussion</h2>
         <input
           type="text"
-          placeholder="Discussion Title"
+          placeholder={t.discussionTitle}
           className="input input-bordered w-full bg-gray-700 text-gray-200 border-gray-600 focus:ring-2 focus:ring-blue-500 transition placeholder-gray-400"
           value={newDiscussion.title}
           onChange={(e) => setNewDiscussion({ ...newDiscussion, title: e.target.value })}
           required
         />
         <textarea
-          placeholder="Discussion Content"
+          placeholder={t.discussionContent}
           className="textarea textarea-bordered w-full bg-gray-700 text-gray-200 border-gray-600 focus:ring-2 focus:ring-blue-500 transition placeholder-gray-400"
           value={newDiscussion.content}
           onChange={(e) => setNewDiscussion({ ...newDiscussion, content: e.target.value })}
@@ -71,7 +72,7 @@ const Discussions = () => {
         />
         <input
           type="text"
-          placeholder="Tags (comma separated)"
+          placeholder={t.tags}
           className="input input-bordered w-full bg-gray-700 text-gray-200 border-gray-600 focus:ring-2 focus:ring-blue-500 transition placeholder-gray-400"
           value={newDiscussion.tags}
           onChange={(e) => setNewDiscussion({ ...newDiscussion, tags: e.target.value })}
@@ -80,7 +81,7 @@ const Discussions = () => {
           type="submit"
           className="btn btn-primary w-full bg-blue-700 hover:bg-blue-800 text-white shadow-md"
         >
-          Post Discussion
+          {t.postDiscussion}
         </button>
       </form>
 
@@ -105,7 +106,7 @@ const Discussions = () => {
                   <h3 className="text-xl font-semibold text-gray-100">{discussion.title}</h3>
                   <p className="text-gray-300 leading-relaxed">{discussion.content}</p>
                   <div className="text-sm text-gray-400 mt-2">
-                    Tags: {discussion.tags?.join(", ") || "None"}
+                    {t.tags}: {discussion.tags?.join(", ") || "None"}
                   </div>
                 </div>
               </div>
@@ -113,7 +114,7 @@ const Discussions = () => {
           ))
         ) : (
           <p className="text-gray-400 text-center py-8 bg-gray-800 rounded-lg shadow-md">
-            No discussions yet.
+            {t.noDiscussions}
           </p>
         )}
       </div>

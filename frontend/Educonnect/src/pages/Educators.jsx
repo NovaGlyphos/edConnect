@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
+import { LanguageContext } from "../context/LanguageContext";
 import api from "../api";
 
 const Educators = () => {
+  const { t } = useContext(LanguageContext);
   const [educators, setEducators] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -15,19 +17,19 @@ const Educators = () => {
         setLoading(false);
       } catch (error) {
         console.error("Error fetching educators:", error.response?.data || error.message);
-        setError("Failed to load educators");
+        setError(t.failedToLoadEducators);
         setLoading(false);
       }
     };
     fetchEducators();
-  }, []);
+  }, [t]);
 
   const defaultUserIcon = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y";
 
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen bg-gray-900">
-        <div className="text-gray-300 text-xl animate-pulse">Loading educators...</div>
+        <div className="text-gray-300 text-xl animate-pulse">{t.loadingEducators}</div>
       </div>
     );
   }
@@ -45,7 +47,7 @@ const Educators = () => {
   return (
     <div className="min-h-screen bg-gray-900 p-6">
       <h2 className="text-3xl font-bold text-gray-100 mb-6 tracking-tight">
-        Our Educators
+        {t.ourEducators}
       </h2>
       <ul className="space-y-6 max-w-2xl mx-auto">
         {educators.map((educator) => (
@@ -69,10 +71,10 @@ const Educators = () => {
                     {educator.name}
                   </h3>
                   <p className="text-sm text-gray-400 truncate">
-                    {educator.bio || "No bio available"}
+                    {educator.bio || t.noBio}
                   </p>
                   <p className="text-sm text-gray-500">
-                    {educator.educationalInstitution || "No institution provided"}
+                    {educator.educationalInstitution || t.noInstitution}
                   </p>
                 </div>
               </div>

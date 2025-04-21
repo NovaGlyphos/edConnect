@@ -1,10 +1,11 @@
-// src/pages/PostDetails.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
+import { LanguageContext } from "../context/LanguageContext";
 import api from "../api";
 import CommentsList from "../components/CommentsList";
 
 const PostDetails = () => {
+  const { t } = useContext(LanguageContext);
   const { postId } = useParams();
   const [post, setPost] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
@@ -25,7 +26,7 @@ const PostDetails = () => {
         response: error.response?.data,
         status: error.response?.status,
       });
-      setErrorMsg(error.response?.data?.message || "Failed to load post. Please try again later.");
+      setErrorMsg(error.response?.data?.message || t.failedToLoadPosts);
     } finally {
       setLoading(false);
     }
@@ -42,7 +43,7 @@ const PostDetails = () => {
       setNewComment("");
       setCommentPosted(true);
       setErrorMsg("");
-      setSuccessMsg("Comment posted successfully!");
+      setSuccessMsg(t.commentPostedSuccess);
       setTimeout(() => setSuccessMsg(""), 3000);
     } catch (error) {
       console.error("Error posting comment:", {
@@ -71,7 +72,7 @@ const PostDetails = () => {
         onClick={fetchPost}
         className="mt-4 btn btn-ghost text-blue-400 hover:text-blue-300"
       >
-        Retry
+        {t.retry}
       </button>
     </div>
   );
@@ -101,7 +102,7 @@ const PostDetails = () => {
           type="text"
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          placeholder="Add a comment..."
+          placeholder={t.addComment}
           className="input input-bordered w-full bg-gray-700 text-gray-200 border-gray-600 focus:ring-2 focus:ring-blue-500 transition placeholder-gray-400"
           required
         />
@@ -109,7 +110,7 @@ const PostDetails = () => {
           type="submit"
           className="btn btn-primary w-full bg-blue-700 hover:bg-blue-800 text-white shadow-md"
         >
-          Post Comment
+          {t.postComment}
         </button>
       </form>
       <CommentsList postId={postId} commentPosted={commentPosted} setCommentPosted={setCommentPosted} />

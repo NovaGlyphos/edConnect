@@ -1,9 +1,10 @@
-// src/components/CommentsList.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { LanguageContext } from "../context/LanguageContext";
 import api from "../api";
 import { formatDistanceToNow } from "date-fns";
 
 const CommentsList = ({ postId, commentPosted, setCommentPosted }) => {
+  const { t } = useContext(LanguageContext);
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -20,7 +21,7 @@ const CommentsList = ({ postId, commentPosted, setCommentPosted }) => {
         response: error.response?.data,
         status: error.response?.status,
       });
-      setError(error.response?.data?.message || "Failed to load comments. Please try again.");
+      setError(error.response?.data?.message || t.failedToLoadComments);
     } finally {
       setLoading(false);
     }
@@ -28,7 +29,7 @@ const CommentsList = ({ postId, commentPosted, setCommentPosted }) => {
 
   useEffect(() => {
     if (postId) fetchComments();
-  }, [postId]);
+  }, [postId, t]);
 
   useEffect(() => {
     if (commentPosted) {
@@ -39,7 +40,7 @@ const CommentsList = ({ postId, commentPosted, setCommentPosted }) => {
 
   if (loading) return (
     <div className="bg-gray-800 rounded-lg p-6 shadow-md border border-gray-700">
-      <h3 className="text-lg font-semibold text-gray-100 mb-4">Comments</h3>
+      <h3 className="text-lg font-semibold text-gray-100 mb-4">{t.comments}</h3>
       <div className="flex justify-center">
         <span className="loading loading-spinner text-blue-400"></span>
       </div>
@@ -48,20 +49,20 @@ const CommentsList = ({ postId, commentPosted, setCommentPosted }) => {
 
   if (error) return (
     <div className="bg-gray-800 rounded-lg p-6 shadow-md border border-gray-700">
-      <h3 className="text-lg font-semibold text-gray-100 mb-4">Comments</h3>
+      <h3 className="text-lg font-semibold text-gray-100 mb-4">{t.comments}</h3>
       <p className="text-red-400">{error}</p>
       <button
         onClick={fetchComments}
         className="mt-4 btn btn-ghost text-blue-400 hover:text-blue-300"
       >
-        Retry
+        {t.retry}
       </button>
     </div>
   );
 
   return (
     <div className="bg-gray-800 rounded-lg p-6 shadow-md border border-gray-700 space-y-4">
-      <h3 className="text-lg font-semibold text-gray-100 mb-4">Comments</h3>
+      <h3 className="text-lg font-semibold text-gray-100 mb-4">{t.comments}</h3>
       {comments.length > 0 ? (
         comments.map((comment) => (
           <div
@@ -76,7 +77,7 @@ const CommentsList = ({ postId, commentPosted, setCommentPosted }) => {
           </div>
         ))
       ) : (
-        <p className="text-gray-400">No comments yet.</p>
+        <p className="text-gray-400">{t.noComments}</p>
       )}
     </div>
   );

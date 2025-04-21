@@ -12,9 +12,10 @@ const commentRoutes = require("./routes/commentRoutes");
 const discussionRoutes = require("./routes/discussionRoutes");
 const educatorRoutes = require("./routes/educatorRoutes");
 const postRoutes = require("./routes/postRoutes");
-const subjectRoutes = require("./routes/subjectRoutes");
+const eventsRoutes = require("./routes/eventsRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const userRoutes = require("./routes/userRoutes");
+const searchRoutes = require("./routes/searchRoutes"); // Added
 
 const { apiLimiter } = require("./middlewares/rateLimiter");
 const errorHandler = require("./middlewares/errorMiddleware");
@@ -31,7 +32,7 @@ app.use(
   })
 );
 
-// Socket.IO setup for real-time features (e.g., notifications)
+// Socket.IO setup for real-time features (e.g., notifications, events)
 const io = new Server(server, {
   cors: {
     origin: ["http://localhost:5173"],
@@ -65,6 +66,14 @@ io.on("connection", (socket) => {
     const userId = decoded._id.toString();
     socket.join(userId);
     console.log(`User ${userId} joined room ${userId}`);
+
+    // Event-specific listeners (optional, for debugging or future use)
+    socket.on("newEvent", (event) => {
+      console.log(`User ${userId} received new event:`, event);
+    });
+    socket.on("eventRegistration", (data) => {
+      console.log(`User ${userId} received registration update:`, data);
+    });
   } catch (error) {
     console.error("Token verification failed:", error.message);
     socket.disconnect();
@@ -95,9 +104,10 @@ app.use("/api/comments", commentRoutes);    // Comment-related endpoints
 app.use("/api/discussions", discussionRoutes); // Discussion-related endpoints
 app.use("/api/educators", educatorRoutes);  // Fetch educators list
 app.use("/api/posts", postRoutes);          // Post-related endpoints
-app.use("/api/subjects", subjectRoutes);    // Subject-related endpoints
+app.use("/api/events", eventsRoutes);       // Events endpoints
 app.use("/api/notifications", notificationRoutes); // Notification endpoints
 app.use("/api/users", userRoutes);          // User profile and follow system
+app.use("/api/search", searchRoutes);       // Search endpoints (Added)
 
 // Error handling middleware (should be last)
 app.use(errorHandler);

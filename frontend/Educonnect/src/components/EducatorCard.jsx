@@ -1,8 +1,9 @@
-// src/components/EducatorCard.jsx
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { LanguageContext } from "../context/LanguageContext";
 import api from "../api";
 
 const EducatorCard = ({ educator }) => {
+  const { t } = useContext(LanguageContext);
   const [following, setFollowing] = useState(false);
 
   const toggleFollow = async () => {
@@ -26,7 +27,7 @@ const EducatorCard = ({ educator }) => {
           following ? "bg-red-700 hover:bg-red-800" : "bg-blue-700 hover:bg-blue-800"
         }`}
       >
-        {following ? "Unfollow" : "Follow"}
+        {following ? t.unfollow : t.follow}
       </button>
     </div>
   );

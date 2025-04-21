@@ -1,9 +1,10 @@
-// src/pages/Subjects.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { FaSearch, FaBook, FaCalculator, FaFlask, FaGlobe, FaCode, FaPalette } from "react-icons/fa";
+import { LanguageContext } from "../context/LanguageContext";
 import api from "../api";
 
 const Subjects = () => {
+  const { t } = useContext(LanguageContext);
   const [subjectCategories, setSubjectCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -66,13 +67,13 @@ const Subjects = () => {
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6 bg-gray-900 text-gray-200">
-      <h1 className="text-3xl font-bold text-gray-100 mb-6">Explore Subjects</h1>
+      <h1 className="text-3xl font-bold text-gray-100 mb-6">{t.exploreSubjects}</h1>
       <div className="relative mb-8 bg-gray-800 p-4 rounded-lg shadow-md border border-gray-700">
         <FaSearch className="absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400" />
         <input
           type="text"
           className="input input-bordered w-full pl-12 bg-gray-700 text-gray-200 border-gray-600 focus:ring-2 focus:ring-blue-500 transition placeholder-gray-400"
-          placeholder="Search for subjects..."
+          placeholder={t.searchSubjects}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -103,14 +104,14 @@ const Subjects = () => {
         ))}
         {filteredCategories.length === 0 && (
           <div className="text-center py-8 bg-gray-800 rounded-lg shadow-md border border-gray-700">
-            <p className="text-gray-400 text-lg">No subjects found matching "{searchQuery}"</p>
+            <p className="text-gray-400 text-lg">{t.noSubjectsFound} "{searchQuery}"</p>
           </div>
         )}
       </div>
       <div className="mt-10 border-t border-gray-700 pt-6 bg-gray-800 rounded-lg shadow-md p-6">
-        <h3 className="text-lg font-semibold text-gray-100 mb-4">Popular Learning Resources</h3>
+        <h3 className="text-lg font-semibold text-gray-100 mb-4">{t.popularResources}</h3>
         <p className="text-gray-400 italic">
-          Connect with top educators for these subjects and discover learning materials.
+          {t.connectEducators}
         </p>
       </div>
     </div>

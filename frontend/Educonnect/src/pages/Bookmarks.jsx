@@ -1,9 +1,10 @@
-// src/pages/Bookmarks.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { LanguageContext } from "../context/LanguageContext";
 import api from "../api";
 import PostItem from "../components/PostItem";
 
 const Bookmarks = () => {
+  const { t } = useContext(LanguageContext);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -15,7 +16,7 @@ const Bookmarks = () => {
       setPosts(data);
       setError("");
     } catch (error) {
-      setError(error.response?.data?.message || "Failed to load bookmarked posts. Please try again.");
+      setError(error.response?.data?.message || t.failedToLoadPosts);
     } finally {
       setLoading(false);
     }
@@ -57,14 +58,14 @@ const Bookmarks = () => {
         onClick={fetchBookmarkedPosts}
         className="mt-4 btn btn-ghost text-blue-400 hover:text-blue-300"
       >
-        Retry
+        {t.retry}
       </button>
     </div>
   );
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-100 mb-4">Bookmarked Posts</h1>
+      <h1 className="text-2xl font-bold text-gray-100 mb-4">{t.bookmarkedPosts}</h1>
       {posts.length > 0 ? (
         posts.map((post) => (
           <PostItem
@@ -75,7 +76,7 @@ const Bookmarks = () => {
           />
         ))
       ) : (
-        <p className="text-gray-400 text-center">No bookmarked posts yet.</p>
+        <p className="text-gray-400 text-center">{t.noBookmarks}</p>
       )}
     </div>
   );

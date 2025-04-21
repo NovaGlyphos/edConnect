@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
+import { LanguageContext } from "../context/LanguageContext";
 import api from "../api";
 
 const Profile = () => {
+  const { t } = useContext(LanguageContext);
   const { id } = useParams();
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -21,12 +23,12 @@ const Profile = () => {
         setLoading(false);
       } catch (error) {
         console.error("Error fetching profile:", error.response?.data || error.message);
-        setError("Failed to load profile");
+        setError(t.failedToLoadProfile);
         setLoading(false);
       }
     };
     fetchProfile();
-  }, [id]);
+  }, [id, t]);
 
   const handleFollow = async () => {
     try {
@@ -56,9 +58,9 @@ const Profile = () => {
     }
   };
 
-  if (loading) return <div>Loading profile...</div>;
+  if (loading) return <div>{t.loadingProfile}</div>;
   if (error) return <div className="text-red-400">{error}</div>;
-  if (!profile) return <div>User not found</div>;
+  if (!profile) return <div>{t.userNotFound}</div>;
 
   const defaultUserIcon = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y";
 
@@ -74,34 +76,34 @@ const Profile = () => {
           />
           <div>
             <h1 className="text-2xl font-bold text-gray-100">{profile.name}</h1>
-            <p className="text-gray-400">{profile.bio || "No bio available"}</p>
+            <p className="text-gray-400">{profile.bio || t.noBio}</p>
             <p className="text-gray-500">
-              {profile.educationalInstitution || "No institution provided"}
+              {profile.educationalInstitution || t.noInstitution}
             </p>
             <div className="mt-2">
-              <span className="text-gray-300">Followers: {profile.followers.length} </span>
-              <span className="text-gray-300 ml-4">Following: {profile.following.length}</span>
+              <span className="text-gray-300">{t.followers}: {profile.followers.length} </span>
+              <span className="text-gray-300 ml-4">{t.following}: {profile.following.length}</span>
             </div>
             {isFollowing ? (
               <button
                 onClick={handleUnfollow}
                 className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
               >
-                Unfollow
+                {t.unfollow}
               </button>
             ) : (
               <button
                 onClick={handleFollow}
                 className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
               >
-                Follow
+                {t.follow}
               </button>
             )}
           </div>
         </div>
       </div>
 
-      <h2 className="text-xl font-semibold text-gray-100 mb-4">Posts</h2>
+      <h2 className="text-xl font-semibold text-gray-100 mb-4">{t.recentPosts}</h2>
       {posts.length > 0 ? (
         <ul className="space-y-4">
           {posts.map((post) => (
@@ -120,7 +122,7 @@ const Profile = () => {
           ))}
         </ul>
       ) : (
-        <p className="text-gray-400">No posts yet.</p>
+        <p className="text-gray-400">{t.noPostsYet}</p>
       )}
     </div>
   );

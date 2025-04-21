@@ -1,11 +1,13 @@
-// src/components/PostItem.jsx
-import React from "react";
+import React, { useContext } from "react";
 import { FaUserCircle, FaHeart, FaComment, FaBookmark } from "react-icons/fa";
 import { formatDistanceToNow } from "date-fns";
 import { Link } from "react-router-dom";
+import { LanguageContext } from "../context/LanguageContext";
 import api from "../api";
 
 const PostItem = ({ post, onLike, onBookmark }) => {
+  const { t } = useContext(LanguageContext);
+
   const handleLike = async () => {
     try {
       const { data } = await api.patch(`/posts/${post._id}/like`);
@@ -63,14 +65,14 @@ const PostItem = ({ post, onLike, onBookmark }) => {
           to={`/posts/${post._id}`}
           className="flex items-center gap-2 text-gray-400 hover:text-blue-400 transition-colors"
         >
-          <FaComment /> Comment
+          <FaComment /> {t.comment}
         </Link>
         <button
           onClick={handleBookmark}
           className="flex items-center gap-2 text-gray-400 hover:text-blue-400 transition-colors"
         >
           <FaBookmark className={post.bookmarked ? "text-blue-400" : ""} />
-          {post.bookmarked ? "Bookmarked" : "Bookmark"}
+          {post.bookmarked ? t.bookmarked : t.bookmarkText}
         </button>
       </div>
     </div>

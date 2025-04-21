@@ -2,7 +2,7 @@ import axios from "axios";
 import { io } from "socket.io-client";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : 'http://localhost:5000/api',
   withCredentials: true,
 });
 
@@ -47,7 +47,7 @@ api.interceptors.response.use(
 
 const createSocket = () => {
   const token = localStorage.getItem("token");
-  const socket = io("http://localhost:5000", {
+  const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {
     auth: { token },
     reconnection: true,
     reconnectionAttempts: 5,
